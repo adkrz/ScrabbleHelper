@@ -1,14 +1,14 @@
-from PyQt5.QtWidgets import QDialog, QApplication, QLabel, QLineEdit, QTextBrowser, QVBoxLayout, QToolButton, \
-    QPlainTextEdit
+from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QLineEdit, QTextBrowser, QVBoxLayout, QToolButton, \
+    QPlainTextEdit, QWidget
 from PyQt5.QtCore import Qt
 
-from trie import read_pickle, read_dictionary, write_pickle, find_possible_words
+from trie import read_pickle, read_dictionary, write_pickle, find_possible_words, find_all_words
 import os
 import sys
 
 
-class Helper(QDialog):
-    dictionary_txt_file = "../slowa.txt"
+class Helper(QMainWindow):
+    dictionary_txt_file = "slowa.txt"
     dictionary_txt_encoding = "utf-8"
     dictionary_pickle_file = "../dict.pickle"
 
@@ -27,7 +27,7 @@ class Helper(QDialog):
 
     def _init_gui(self):
         layout = QVBoxLayout()
-        lbl1 = QLabel("Litery do wyłożenia:")
+        lbl1 = QLabel("Litery do wyłożenia:\nPuste = przeszukaj cały słownik w poszukiwaniu wyrażeń.")
         self.line_edit_letters = QLineEdit()
         self.line_edit_letters.returnPressed.connect(self._search)
         layout.addWidget(lbl1)
@@ -36,7 +36,6 @@ class Helper(QDialog):
         self.line_edit_pattern = QPlainTextEdit()
         layout.addWidget(lbl2)
         layout.addWidget(self.line_edit_pattern)
-        self.setLayout(layout)
         btn_find = QToolButton()
         btn_find.setText("Szukaj")
         btn_find.clicked.connect(self._search)
@@ -44,6 +43,10 @@ class Helper(QDialog):
         self.results = QTextBrowser()
         layout.addWidget(self.results)
         self.setWindowTitle("Scrabble Helper")
+        w = QWidget()
+        w.setLayout(layout)
+        self.setCentralWidget(w)
+        
 
     def _search(self):
         self.results.clear()
@@ -61,8 +64,11 @@ class Helper(QDialog):
             letters_from_pattern = [char for char in pattern if char >= 'a' and char <= 'ż']
             letters_from_pattern = "".join(letters_from_pattern)
             possible_letters = self.line_edit_letters.text().lower().strip()
-            possible_letters += letters_from_pattern
-            result = find_possible_words(self.trie_root, possible_letters, pattern)
+            if possible_letters:
+                possible_letters += letters_from_pattern
+                result = find_possible_words(self.trie_root, possible_letters, pattern)
+            else:
+                result = find_all_words(self.trie_root, pattern)
             # Exclude pattern itself:
             result = [r for r in result if r != letters_from_pattern]
             found_words[raw_pattern] = result

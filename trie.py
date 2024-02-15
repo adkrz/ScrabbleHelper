@@ -49,6 +49,24 @@ List[str]:
     return _result
 
 
+def find_all_words(trie: TrieNode, filter_regex=None, _result: List[str] = None, _root_word="") -> \
+List[str]:
+    if _result is None:
+        _result = []
+    if trie.children is None:
+        return _result
+    
+    for child_letter, child in trie.children.items():
+        new_word = f"{_root_word}{child_letter}"
+        if child.is_valid_word:
+            if re.match(filter_regex, new_word):
+                _result.append(new_word)
+        find_all_words(child, filter_regex, _result, new_word)
+    if _root_word == "":
+        _result = list(sorted(sorted(set(_result))))
+    return _result
+
+
 def has_word(trie: TrieNode, word: str) -> Optional[TrieNode]:
     """ Returns trie child that represents last letter of the word (None if not found) """
     current_level = trie
