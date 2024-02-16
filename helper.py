@@ -1,3 +1,4 @@
+from PyQt5.QtGui import QCloseEvent
 from PyQt5.QtWidgets import QMainWindow, QApplication, QLabel, QLineEdit, QTextBrowser, QVBoxLayout, QToolButton, \
     QPlainTextEdit, QWidget
 from PyQt5.QtCore import Qt
@@ -24,6 +25,10 @@ class Helper(QMainWindow):
             raise Exception("Neither dictionary TXT or pickled trie file is present. "
                             "Please download dictionary from https://sjp.pl/sl/growy/ and unzip txt file.")
         print("Starting GUI...")
+
+    def closeEvent(self, a0: QCloseEvent) -> None:
+        self.trie_root = None
+        return super().closeEvent(a0)
 
     def _init_gui(self):
         layout = QVBoxLayout()
